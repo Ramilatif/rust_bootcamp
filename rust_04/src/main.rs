@@ -41,8 +41,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Cas 1: génération d'une map
     if let Some(spec) = cli.generate.as_ref() {
-        let (w, h) = grid::parse_dims(spec)
-            .map_err(|e| format!("Invalid --generate spec '{spec}': {e}"))?;
+        let (w, h) =
+            grid::parse_dims(spec).map_err(|e| format!("Invalid --generate spec '{spec}': {e}"))?;
 
         println!("Generating {}x{} hexadecimal grid...", w, h);
         let grid = grid::generate_grid(w, h);
@@ -61,10 +61,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         if cli.visualize || cli.both || cli.animate {
             println!("Finding optimal paths.");
 
-            let min = path::find_min_path(&grid)
-                .ok_or("No path found for minimum cost")?;
-            let max = path::find_max_path(&grid)
-                .ok_or("No path found for maximum cost")?;
+            let min = path::find_min_path(&grid).ok_or("No path found for minimum cost")?;
+            let max = path::find_max_path(&grid).ok_or("No path found for maximum cost")?;
 
             println!();
             visualize::print_path_report("MINIMUM COST PATH", &grid, &min);
@@ -96,10 +94,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Analyzing hexadecimal grid...");
     println!("Grid size: {}×{}", grid.width, grid.height);
-    println!(
-        "Start: (0,0) = 0x{:02X}",
-        grid.get(0, 0)
-    );
+    println!("Start: (0,0) = 0x{:02X}", grid.get(0, 0));
     println!(
         "End: ({}, {}) = 0x{:02X}",
         grid.width - 1,
@@ -108,16 +103,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     println!();
 
-    let min = path::find_min_path(&grid)
-        .ok_or("No path found for minimum cost")?;
+    let min = path::find_min_path(&grid).ok_or("No path found for minimum cost")?;
 
     visualize::print_path_report("MINIMUM COST PATH", &grid, &min);
 
     let mut max_opt = None;
     if cli.both {
         println!();
-        let max = path::find_max_path(&grid)
-            .ok_or("No path found for maximum cost")?;
+        let max = path::find_max_path(&grid).ok_or("No path found for maximum cost")?;
         visualize::print_path_report("MAXIMUM COST PATH", &grid, &max);
         max_opt = Some(max);
     }
@@ -135,4 +128,3 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-

@@ -56,10 +56,7 @@ fn dijkstra(grid: &Grid, maximize: bool) -> Option<PathResult> {
     let n = w * h;
 
     let start = Node { x: 0, y: 0 };
-    let goal = Node {
-        x: w - 1,
-        y: h - 1,
-    };
+    let goal = Node { x: w - 1, y: h - 1 };
 
     let mut dist = vec![u32::MAX; n];
     let mut prev: Vec<Option<Node>> = vec![None; n];
@@ -145,4 +142,3 @@ fn dijkstra(grid: &Grid, maximize: bool) -> Option<PathResult> {
 fn idx(x: usize, y: usize, width: usize) -> usize {
     y * width + x
 }
-

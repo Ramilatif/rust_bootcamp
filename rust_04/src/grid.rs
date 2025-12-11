@@ -96,8 +96,8 @@ pub fn load_map<P: AsRef<Path>>(path: P) -> Result<Grid, Box<dyn Error>> {
             if tok.len() != 2 {
                 return Err(format!("Invalid hex value '{tok}'").into());
             }
-            let v = u8::from_str_radix(tok, 16)
-                .map_err(|_| format!("Invalid hex number '{tok}'"))?;
+            let v =
+                u8::from_str_radix(tok, 16).map_err(|_| format!("Invalid hex number '{tok}'"))?;
             row.push(v);
         }
 
@@ -125,19 +125,11 @@ pub fn load_map<P: AsRef<Path>>(path: P) -> Result<Grid, Box<dyn Error>> {
 
     // Vérifier start/end
     if cells[0] != 0x00 {
-        return Err(format!(
-            "Start cell must be 00, found {:02X}",
-            cells[0]
-        )
-        .into());
+        return Err(format!("Start cell must be 00, found {:02X}", cells[0]).into());
     }
     let last_idx = width * height - 1;
     if cells[last_idx] != 0xFF {
-        return Err(format!(
-            "End cell must be FF, found {:02X}",
-            cells[last_idx]
-        )
-        .into());
+        return Err(format!("End cell must be FF, found {:02X}", cells[last_idx]).into());
     }
 
     Ok(Grid {
@@ -162,4 +154,3 @@ pub fn save_map<P: AsRef<Path>>(path: P, grid: &Grid) -> Result<(), Box<dyn Erro
     fs::write(path, out)?;
     Ok(())
 }
-

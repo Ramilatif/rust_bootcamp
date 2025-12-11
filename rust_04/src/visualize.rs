@@ -4,11 +4,7 @@ use std::collections::HashSet;
 
 /// Affiche la grille hex avec couleurs simples.
 /// Si min/max fournis, surligne leurs cases.
-pub fn print_grid(
-    grid: &Grid,
-    min_path: Option<&PathResult>,
-    max_path: Option<&PathResult>,
-) {
+pub fn print_grid(grid: &Grid, min_path: Option<&PathResult>, max_path: Option<&PathResult>) {
     let mut min_set: HashSet<(usize, usize)> = HashSet::new();
     let mut max_set: HashSet<(usize, usize)> = HashSet::new();
 
@@ -49,7 +45,7 @@ pub fn print_grid(
             } else {
                 // coloration simple : 6 couleurs selon la valeur
                 let idx = (v as usize * 6) / 256; // 0..5
-                let color_code = 31 + idx as u8;  // 31..36
+                let color_code = 31 + idx as u8; // 31..36
                 print!("\x1b[1;{}m{:02X}\x1b[0m ", color_code, v);
             }
         }
@@ -90,10 +86,7 @@ fn print_step_by_step(grid: &Grid, nodes: &[Node]) {
 
     let start = nodes[0];
     let start_val = grid.get(start.x, start.y);
-    println!(
-        "  Start  0x{:02X} ({},{})",
-        start_val, start.x, start.y
-    );
+    println!("  Start  0x{:02X} ({},{})", start_val, start.x, start.y);
 
     let mut total: u32 = 0;
 
@@ -101,13 +94,7 @@ fn print_step_by_step(grid: &Grid, nodes: &[Node]) {
         let to = window[1];
         let val = grid.get(to.x, to.y) as u32;
         total += val;
-        println!(
-            "    →    0x{:02X} ({},{})  +{}",
-            val,
-            to.x,
-            to.y,
-            val
-        );
+        println!("    →    0x{:02X} ({},{})  +{}", val, to.x, to.y, val);
     }
 
     println!("  Total: 0x{:X} ({})", total, total);
@@ -118,4 +105,3 @@ pub fn animate_placeholder() {
     println!("Animation mode is not implemented yet.");
     println!("(Add Dijkstra step-by-step visualization here.)");
 }
-
