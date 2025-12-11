@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
 
-mod dh;
-mod cipher;
-mod net;
 mod chat;
+mod cipher;
+mod dh;
+mod net;
 
 /// Stream cipher chat with Diffie-Hellman key generation
 #[derive(Parser, Debug)]
@@ -46,4 +46,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-

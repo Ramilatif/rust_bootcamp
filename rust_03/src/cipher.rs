@@ -30,9 +30,7 @@ impl Lcg {
 
 /// XOR un buffer avec le keystream
 pub fn xor_with_keystream(data: &[u8], ks: &mut Lcg) -> Vec<u8> {
-    data.iter()
-        .map(|b| b ^ ks.next_byte())
-        .collect()
+    data.iter().map(|b| b ^ ks.next_byte()).collect()
 }
 
 /// Crée deux flux keystream (envoi / réception) à partir du secret DH.
@@ -73,4 +71,3 @@ mod tests {
         assert_eq!(plain2, reply);
     }
 }
-

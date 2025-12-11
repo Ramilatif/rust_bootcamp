@@ -2,6 +2,7 @@ use rand::Rng;
 
 /// Hardcoded 64-bit prime (public)
 pub const P: u64 = 0xD87F_A3E2_91B4_C7F3;
+
 /// Generator (public)
 pub const G: u64 = 2;
 
@@ -17,7 +18,6 @@ impl KeyPair {
         let mut rng = rand::thread_rng();
 
         // Clé privée aléatoire 64 bits
-        // Attention: `gen` est un mot-clé dans ta version → raw ident `r#gen`
         let private: u64 = rng.r#gen();
 
         // public = g^private mod p
@@ -34,8 +34,7 @@ impl KeyPair {
 /// Calcule le secret partagé à partir de notre private et de leur public
 pub fn compute_shared_secret(our_private: u64, their_public: u64) -> u64 {
     // secret = (their_public ^ our_private) mod P
-    let secret =
-        modular_pow(their_public as u128, our_private as u128, P as u128) as u64;
+    let secret = modular_pow(their_public as u128, our_private as u128, P as u128) as u64;
 
     println!("[DH] Computed shared secret = {secret:016X}");
     secret
@@ -69,12 +68,14 @@ mod tests {
     fn test_modular_pow_basic() {
         // 2^10 = 1024
         assert_eq!(modular_pow(2, 10, 1_000_000), 1024);
+
         // (2^10) mod 1000 = 24
         assert_eq!(modular_pow(2, 10, 1000), 24);
     }
 
     #[test]
     fn test_dh_shared_secret_matches() {
+        // Simule un serveur et un client qui font DH
         let server = KeyPair::generate();
         let client = KeyPair::generate();
 
@@ -87,4 +88,3 @@ mod tests {
         );
     }
 }
-

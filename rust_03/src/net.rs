@@ -11,6 +11,19 @@ pub fn run_server(port: u16) -> Result<(), Box<dyn Error>> {
     println!("[SERVER] Listening on {addr}");
     println!("[SERVER] Waiting for client...");
 
+    // ====== IMPORTANT : afficher les paramètres DH dès le démarrage ======
+    println!("[DH] Using hardcoded DH parameters:");
+    let p = dh::P;
+    println!(
+        "  p = {:04X} {:04X} {:04X} {:04X} (64-bit prime - public)",
+        (p >> 48) as u16,
+        ((p >> 32) & 0xFFFF) as u16,
+        ((p >> 16) & 0xFFFF) as u16,
+        (p & 0xFFFF) as u16
+    );
+    println!("  g = {} (generator - public)", dh::G);
+    // =====================================================================
+
     let (mut stream, client_addr) = listener.accept()?;
     println!("[SERVER] Client connected from {client_addr}");
 
@@ -32,19 +45,11 @@ pub fn run_client(addr: &str) -> Result<(), Box<dyn Error>> {
 
 fn dh_server_handshake(stream: &mut TcpStream) -> Result<u64, Box<dyn Error>> {
     println!("[DH][SERVER] Starting key exchange...");
-    println!(
-        "[DH] Using hardcoded parameters: p = {:#018X}, g = {}",
-        dh::P,
-        dh::G
-    );
 
     let keypair = KeyPair::generate();
 
     let public_bytes = keypair.public.to_be_bytes();
-    println!(
-        "[DH][SERVER] Sending public key: {:016X}",
-        keypair.public
-    );
+    println!("[DH][SERVER] Sending public key: {:016X}", keypair.public);
     send_all(stream, &public_bytes)?;
 
     let other_bytes = recv_exact(stream, 8)?;
@@ -61,11 +66,6 @@ fn dh_server_handshake(stream: &mut TcpStream) -> Result<u64, Box<dyn Error>> {
 
 fn dh_client_handshake(stream: &mut TcpStream) -> Result<u64, Box<dyn Error>> {
     println!("[DH][CLIENT] Starting key exchange...");
-    println!(
-        "[DH] Using hardcoded parameters: p = {:#018X}, g = {}",
-        dh::P,
-        dh::G
-    );
 
     let keypair = KeyPair::generate();
 
@@ -77,10 +77,7 @@ fn dh_client_handshake(stream: &mut TcpStream) -> Result<u64, Box<dyn Error>> {
     );
 
     let public_bytes = keypair.public.to_be_bytes();
-    println!(
-        "[DH][CLIENT] Sending public key: {:016X}",
-        keypair.public
-    );
+    println!("[DH][CLIENT] Sending public key: {:016X}", keypair.public);
     send_all(stream, &public_bytes)?;
 
     let secret = dh::compute_shared_secret(keypair.private, server_public);
@@ -107,4 +104,3 @@ pub fn recv_exact(stream: &mut TcpStream, len: usize) -> Result<Vec<u8>, Box<dyn
 
     Ok(buf)
 }
-

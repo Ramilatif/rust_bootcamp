@@ -111,4 +111,3 @@ pub fn run_chat(stream: TcpStream, shared_secret: u64, role: Role) -> Result<(),
     println!("[CHAT] Connection closed.");
     Ok(())
 }
-

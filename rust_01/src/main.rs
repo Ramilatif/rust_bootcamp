@@ -6,7 +6,12 @@ use std::io::{self, Read};
 
 /// Count word frequency in text
 #[derive(Parser)]
-#[command(name = "wordfreq", about = "Count word frequency in text", author, version)]
+#[command(
+    name = "wordfreq",
+    about = "Count word frequency in text",
+    author,
+    version
+)]
 struct Args {
     /// Text to analyze (or use stdin)
     #[arg(value_name = "TEXT")]

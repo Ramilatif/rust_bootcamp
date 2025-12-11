@@ -143,11 +143,7 @@ fn write_mode(path: &PathBuf, offset: u64, data: &[u8]) -> io::Result<()> {
     file.write_all(data)?;
     file.flush()?;
 
-    println!(
-        "Writing {} bytes at offset 0x{:08x}",
-        data.len(),
-        offset
-    );
+    println!("Writing {} bytes at offset 0x{:08x}", data.len(), offset);
 
     print!("Hex: ");
     for b in data {
@@ -161,4 +157,3 @@ fn write_mode(path: &PathBuf, offset: u64, data: &[u8]) -> io::Result<()> {
 
     Ok(())
 }
-
