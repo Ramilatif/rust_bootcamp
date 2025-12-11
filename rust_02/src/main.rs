@@ -71,7 +71,8 @@ fn parse_offset(s: &str) -> Result<u64, String> {
 
 /// Convert hex string "48656c6c6f" -> Vec<u8>
 fn hex_to_bytes(s: &str) -> Result<Vec<u8>, String> {
-    if s.len() % 2 != 0 {
+    // Clippy: ne plus faire `len() % 2 != 0`, utiliser is_multiple_of
+    if !s.len().is_multiple_of(2) {
         return Err("length must be even".into());
     }
 
@@ -137,6 +138,8 @@ fn write_mode(path: &PathBuf, offset: u64, data: &[u8]) -> io::Result<()> {
         .read(true)
         .write(true)
         .create(true)
+        // Clippy: préciser le comportement de truncate
+        .truncate(false)
         .open(path)?;
 
     file.seek(SeekFrom::Start(offset))?;

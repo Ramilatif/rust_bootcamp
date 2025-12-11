@@ -24,6 +24,10 @@ struct Args {
     /// Case insensitive counting
     #[arg(long)]
     ignore_case: bool,
+
+    /// Minimum word length to count
+    #[arg(long)]
+    min_length: Option<usize>,
 }
 
 fn read_stdin() -> io::Result<String> {
@@ -44,15 +48,28 @@ fn main() {
         input = input.to_lowercase();
     }
 
-    let re = Regex::new(r"\w+").expect("invalid regex");
+    // Gestion des mots avec guillemets + mots normaux
+    // - "World"  → token = "World"
+    // - 'Hello'  → token = 'Hello'
+    // - hello    → token = hello
+    let re = Regex::new(r#""[^"]+"|'[^']+'|\w+"#).expect("invalid regex");
 
     let mut freq: HashMap<String, usize> = HashMap::new();
     for m in re.find_iter(&input) {
         let w = m.as_str().to_string();
+
+        // Filtre de longueur minimale
+        if let Some(min) = args.min_length {
+            if w.chars().count() < min {
+                continue;
+            }
+        }
+
         *freq.entry(w).or_insert(0) += 1;
     }
 
     let mut items: Vec<(String, usize)> = freq.into_iter().collect();
+    // tri: d'abord par fréquence décroissante, puis par ordre alphabétique
     items.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
 
     if let Some(n) = args.top {
