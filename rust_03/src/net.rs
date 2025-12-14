@@ -104,3 +104,63 @@ pub fn recv_exact(stream: &mut TcpStream, len: usize) -> Result<Vec<u8>, Box<dyn
 
     Ok(buf)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::net::TcpListener;
+    use std::thread;
+
+    #[test]
+    fn test_dh_handshake_over_tcp() {
+        // On choisit une adresse locale avec port 0 (le système choisit un port libre)
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind failed");
+        let addr = listener.local_addr().unwrap();
+
+        // On a besoin de déplacer le listener dans le thread serveur
+        let server_handle = thread::spawn(move || {
+            // accepter une seule connexion
+            let (mut stream, _) = listener.accept().expect("accept failed");
+            dh_server_handshake(&mut stream).expect("server handshake failed")
+        });
+
+        // Côté client, on se connecte
+        let client_handle = thread::spawn(move || {
+            let mut stream = TcpStream::connect(addr).expect("connect failed");
+            dh_client_handshake(&mut stream).expect("client handshake failed")
+        });
+
+        let secret_server = server_handle.join().expect("server thread panicked");
+        let secret_client = client_handle.join().expect("client thread panicked");
+
+        assert_eq!(
+            secret_server, secret_client,
+            "Server and client must derive the same DH secret"
+        );
+        assert_ne!(secret_server, 0);
+    }
+
+    #[test]
+    fn test_send_all_and_recv_exact() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind failed");
+        let addr = listener.local_addr().unwrap();
+
+        let server_handle = thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept failed");
+            let data = recv_exact(&mut stream, 5).expect("recv_exact failed");
+            data
+        });
+
+        let client_handle = thread::spawn(move || {
+            let mut stream = TcpStream::connect(addr).expect("connect failed");
+            let bytes = b"hello";
+            send_all(&mut stream, bytes).expect("send_all failed");
+        });
+
+        let received = server_handle.join().expect("server thread panicked");
+        client_handle.join().expect("client thread panicked");
+
+        assert_eq!(received, b"hello");
+    }
+}
+

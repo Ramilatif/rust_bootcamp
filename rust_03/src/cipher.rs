@@ -70,4 +70,44 @@ mod tests {
         let plain2 = xor_with_keystream(&cipher2, &mut ks_recv_server);
         assert_eq!(plain2, reply);
     }
+
+    #[test]
+    fn test_lcg_reproducible_for_same_seed() {
+        let secret = 0xDEAD_BEEF_DEAD_BEEFu64;
+
+        let mut ks1 = Lcg::new(secret);
+        let mut ks2 = Lcg::new(secret);
+
+        let mut bytes1 = Vec::new();
+        let mut bytes2 = Vec::new();
+
+        for _ in 0..32 {
+            bytes1.push(ks1.next_byte());
+            bytes2.push(ks2.next_byte());
+        }
+
+        assert_eq!(bytes1, bytes2, "Keystream must be deterministic for same seed");
+    }
+
+    #[test]
+    fn test_lcg_different_seeds_different_streams() {
+        let secret1 = 0x1111_2222_3333_4444u64;
+        let secret2 = 0xAAAA_BBBB_CCCC_DDDDu64;
+
+        let mut ks1 = Lcg::new(secret1);
+        let mut ks2 = Lcg::new(secret2);
+
+        let mut diff_count = 0;
+        for _ in 0..32 {
+            if ks1.next_byte() != ks2.next_byte() {
+                diff_count += 1;
+            }
+        }
+
+        // On s'attend à ce qu'il y ait au moins quelques différences
+        assert!(
+            diff_count > 0,
+            "Different seeds should produce different keystreams"
+        );
+    }
 }

@@ -88,3 +88,34 @@ mod tests {
         );
     }
 }
+
+    #[test]
+    fn test_modular_pow_edge_cases() {
+        // base quelconque ^ 0 mod p = 1
+        assert_eq!(modular_pow(12345, 0, P as u128), 1);
+
+        // 0 ^ exp mod p = 0 (sauf p=1)
+        assert_eq!(modular_pow(0, 10, P as u128), 0);
+
+        // exp avec grand exposant
+        let res = modular_pow(5, 123456, P as u128);
+        // juste vérifier que c'est bien dans [0, p)
+        assert!(res < P as u128);
+    }
+
+    #[test]
+    fn test_dh_with_fixed_keys() {
+        // On fixe des clés privées pour que le test soit déterministe
+        let private_a: u64 = 0x0123_4567_89AB_CDEF;
+        let private_b: u64 = 0x0FED_CBA9_7654_3210;
+
+        let public_a = modular_pow(G as u128, private_a as u128, P as u128) as u64;
+        let public_b = modular_pow(G as u128, private_b as u128, P as u128) as u64;
+
+        let secret_a = compute_shared_secret(private_a, public_b);
+        let secret_b = compute_shared_secret(private_b, public_a);
+
+        assert_eq!(secret_a, secret_b);
+        assert_ne!(secret_a, 0);
+    }
+
